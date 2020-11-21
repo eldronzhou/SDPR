@@ -18,7 +18,7 @@ SDPR can be run from the command line. To see the full list of options, please r
 SDPR -h
 ```
 
-SDPR provides two functions: (1) estimating and paritioning of the reference LD matrix (2) perform MCMC to obtain estimated effect sizes for each SNP. The example usage is:
+SDPR provides two functions: (1) estimating and paritioning of the reference LD matrix (2) perform MCMC to estimate the posterior effect sizes for each SNP. The example usage is:
 
 ```bash
 # make the refernce
@@ -31,11 +31,11 @@ SDPR -mcmc -ref_dir ref/ -ss summary_stat/sim_1.txt -N 503 -chr 22 -out result/S
 
 # Help
 
-We provide guidance on how to use SDPR in the manual. If you encounter Bugs, want feature requests, or have any questions related to installing and running SDPR, please report to the [issue](https://github.com/eldronzhou/SDPR/issues) page. 
+We provide guidance on how to use SDPR in the manual. If you encounter Bugs, request new features, or have any questions related to installing and running SDPR, please report to the [issue](https://github.com/eldronzhou/SDPR/issues) page. 
 
 # License
 
-SDPR is devloped by [Zhao lab](http://zhaocenter.org) at Yale University. The source code is under [GPL license](https://github.com/eldronzhou/SDPR/blob/main/LICENSE). SDPR uses [GSL](https://www.gnu.org/software/gsl/) (GNU Scientific Library), which we redistributed under the GPL license. We also provide a copy of [Intel® MKL®](https://software.intel.com/content/www/us/en/develop/tools/math-kernel-library.html) library for linking, which is redistributed under the [Intel Simple Software License](https://github.com/eldronzhou/SDPR/blob/main/MKL/intel-simplified-software-license.pdf).
+SDPR is devloped by [Zhao lab](http://zhaocenter.org) at Yale University. The source code distributed is under the [GPL license](https://github.com/eldronzhou/SDPR/blob/main/LICENSE). SDPR uses [GSL](https://www.gnu.org/software/gsl/) (GNU Scientific Library), which is also redistributed under the GPL license. We provide a copy of [Intel® MKL®](https://software.intel.com/content/www/us/en/develop/tools/math-kernel-library.html) library for dynamic linking, which is redistributed under the [Intel Simple Software License](https://github.com/eldronzhou/SDPR/blob/main/MKL/intel-simplified-software-license.pdf).
 
 # Citation
 
