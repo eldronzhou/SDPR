@@ -480,10 +480,17 @@ void mcmc(const string &ref_path, const string &ss_path, \
     // number of pst. samples 
     int n_pst = (iter-burn) / thin;
 
+    
     mcmc_data dat;
     coord(ref_path, ss_path, valid_path, \
 	  ldmat_path, dat, sz);
-	    
+
+    if (dat.beta_mrg.size() == 0) {
+	cout << "0 SNPs remained after coordination. Exit." << endl;
+	return;
+    }
+    
+    
     ldmat_data ldmat_dat;
 
     // initialize mcmc
@@ -493,6 +500,7 @@ void mcmc(const string &ref_path, const string &ss_path, \
 	dat.beta_mrg[i] /= c;
     }
 
+    
     MCMC_samples samples = MCMC_samples(dat.beta_mrg.size());
    
     solve_ldmat(dat, ldmat_dat, a);
@@ -539,12 +547,11 @@ void mcmc(const string &ref_path, const string &ss_path, \
 		    samples.beta);
 	}
 
-	if (j % 1 == 0) {
-	    //state.compute_h2(dat, ldmat_dat);
-	    cout << j << endl;
-	    /*cout << state.h2*square(state.eta) << \
-		" " << gsl_vector_max(state.beta)*state.eta \
-		<< " " << state.eta << endl;*/
+	if (j % 100 == 0) {
+	    state.compute_h2(dat, ldmat_dat);
+	    cout << j << " iter. h2: " << state.h2*square(state.eta) << \
+		" max beta: " << gsl_vector_max(state.beta)*state.eta \
+		 << endl;
 		
 	}
 

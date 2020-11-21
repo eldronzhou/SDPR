@@ -98,7 +98,7 @@ int main(int argc, char *argv[]) {
 	    }
 	    if (N <= 1000) {
 		cout << "Warning: sample size too small, might" \
-		    "not achieve good performance." << endl;
+		    " not achieve good performance." << endl;
 	    }
 	    i += 2;
 	}

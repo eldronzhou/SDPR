@@ -86,7 +86,6 @@ void parse_valid(const string &valid_path, \
     int n = 0;
     unordered_map<string, CoordInfo*>::iterator idx;
 
-    getline(infile, header);
     while (infile >> chr >> id >> genPos >> phyPos >> A1 >> A2) {
 	idx = ref_dict.find(id);
 	if (idx != ref_dict.end()) {
@@ -200,11 +199,20 @@ void coord(const string &ref_path, const string &ss_path, \
     unordered_map<string, CoordInfo*> ref_dict;
     vector<pair<size_t, size_t>> boundary;
     vector<string> SNP;
+    unordered_map<string, CoordInfo*>::iterator it;
+
     parse_ref(ref_path, ref_dict, boundary, SNP);
-    parse_valid(valid_path, ref_dict);
+    
+    if (!valid_path.empty()) {
+	parse_valid(valid_path, ref_dict);
+    }
+    else {
+	for (it=ref_dict.begin(); it != ref_dict.end(); it++) {
+	    it->second->include_ref = true;
+	}
+    }
 
     parse_ss(ss_path, ref_dict, sz);    
-    unordered_map<string, CoordInfo*>::iterator it;
     parse_ld_mat(ldmat_path, ss_path, \
 	    ref_dict, boundary, SNP, dat);
     for (it=ref_dict.begin(); it != ref_dict.end(); it++) {
