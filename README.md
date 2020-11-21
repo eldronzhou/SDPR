@@ -35,7 +35,7 @@ We provide guidance on how to use SDPR in the manual. If you encounter Bugs, req
 
 # License
 
-SDPR is devloped by [Zhao lab](http://zhaocenter.org) at Yale University. The source code distributed is under the [GPL license](https://github.com/eldronzhou/SDPR/blob/main/LICENSE). SDPR uses [GSL](https://www.gnu.org/software/gsl/) (GNU Scientific Library), which is also redistributed under the GPL license. We provide a copy of [Intel® MKL®](https://software.intel.com/content/www/us/en/develop/tools/math-kernel-library.html) library for dynamic linking, which is redistributed under the [Intel Simple Software License](https://github.com/eldronzhou/SDPR/blob/main/MKL/intel-simplified-software-license.pdf).
+SDPR is devloped by [Zhao lab](http://zhaocenter.org) at Yale University. The source code is distributed under the [GPL license](https://github.com/eldronzhou/SDPR/blob/main/LICENSE). SDPR uses [GSL](https://www.gnu.org/software/gsl/) (GNU Scientific Library), which is also redistributed under the GPL license. We provide a copy of [Intel® MKL®](https://software.intel.com/content/www/us/en/develop/tools/math-kernel-library.html) library for dynamic linking, which is redistributed under the [Intel Simple Software License](https://github.com/eldronzhou/SDPR/blob/main/MKL/intel-simplified-software-license.pdf).
 
 # Citation
 
