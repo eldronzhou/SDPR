@@ -112,6 +112,7 @@ void parse_ss(const string &ss_path, unordered_map<string, \
     getline(infile, header);
     unordered_map<string, CoordInfo*>::iterator idx;
 
+    int n_flip = 0, n_bad = 0;
     while (infile >> id >> A1 >> A2 >> beta >> pval) {
 	idx = ref_dict.find(id);
 	if (pval <= 1e-323) {
@@ -129,10 +130,18 @@ void parse_ss(const string &ss_path, unordered_map<string, \
 		idx->second->beta = -1.0*sign(beta)* \
 		fabs(gsl_cdf_ugaussian_Pinv(pval/2.0))/sqrt(sz);
 		n++;
+		n_flip++;
+	    }
+	    else {
+		n_bad++;
 	    }
 	}
     }
 
+    cout << n_flip << "SNPs have flipped alleles between summary statistics and " 
+	<< "reference panel." << endl;
+    cout << n_bad << "SNPs removed due to mismatch of allels between " 
+	<< "summary statistics and reference panel." << endl;
     cout << n << " common SNPs among reference, validation "
 	"and gwas summary statistics." << endl;
     infile.close();

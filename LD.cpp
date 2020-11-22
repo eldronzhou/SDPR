@@ -69,7 +69,7 @@ bool myCmp(const pair<size_t, size_t> &a, const pair<size_t, size_t> &b) {
 
 void div_block(const string &pfile, \
 	const string &out_dir, \
-	unsigned chrom, size_t n_thread) {
+	unsigned chrom, size_t n_thread, double r2) {
     string fam_path = pfile + ".fam";
     string bim_path = pfile + ".bim";
     string bed_path = pfile + ".bed";
@@ -106,7 +106,7 @@ void div_block(const string &pfile, \
 	    gsl_blas_ddot(&snp1.vector, &snp2.vector, &cor);
 	    cor /= n_sample;
 
-	    if (cor*cor > 0.1) {
+	    if (cor*cor > r2) {
 		max_list[i-left]= j;
 	    }
     	}

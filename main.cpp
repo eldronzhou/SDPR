@@ -36,6 +36,7 @@ void print_use() {
 	<< " -burn (optional) number of burn-in for MCMC. Default is 200." << endl << endl 
 	<< " -thin (optional) Thinning for MCMC. Default is 1 (no thin). " << endl << endl
 	<< " -n_threads (optional) number of threads to use. Default is 1." << endl << endl
+	<< "-r2 (optional) r2 cut-off for parition of independent blocks. Default is 0.1." << endl
 	<< " -a (optional) factor to shrink the reference LD matrix. Default is 0.1. Please refer to the manual for more information." << endl << endl
 	<< " -c (optional) factor to correct for the deflation. Default is 1. Please refer to the manual for more information." << endl << endl
 	<< " -a0k (optional) hyperparameter for inverse gamma distribution. Default is 0.5." << endl << endl
@@ -52,7 +53,7 @@ int main(int argc, char *argv[]) {
 
     string ss_path, ref_prefix, ref_dir, valid_bim, out_path;
     int N = 0, n_threads = 1, chr = 0;
-    double a = 0, c = 1, a0k = .5, b0k = .5;
+    double a = 0, c = 1, a0k = .5, b0k = .5, r2 = .1;
     size_t M = 1000;
     int iter = 1000, burn = 200, thin = 5;
     int make_ref = 0, run_mcmc = 0;
@@ -178,6 +179,13 @@ int main(int argc, char *argv[]) {
 	    }
 	    i += 2;
 	}
+	else if (strcmp(argv[i], "-r2") == 0) {
+	    r2 = strtod(argv[i+1], &end);
+	    if (r2 <= 0) {
+		cout << "Incorrect r2: " << argv[i+1] << endl;
+	    }
+	    i += 2;
+	}
 	else if (strcmp(argv[i], "-h") == 0) {
 	    print_use();
 	    return 0;
@@ -219,7 +227,7 @@ int main(int argc, char *argv[]) {
 	    return 0;
 	}
 
-	div_block(ref_prefix, ref_dir, chr, n_threads);
+	div_block(ref_prefix, ref_dir, chr, n_threads, r2);
     }
 
     // mcmc 
@@ -231,7 +239,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	if (out_path.empty()) {
-	    cout << "Did not specify the path of the output file.." << endl;
+	    cout << "Did not specify the path of the output file." << endl;
 	    return 0;
 	}
 
