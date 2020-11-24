@@ -391,8 +391,7 @@ void MCMC_state::sample_beta(size_t j, const mcmc_data &dat, \
     free(ptr);
 }
 
-void MCMC_state::compute_h2(const mcmc_data &dat, \
-	    const ldmat_data &ldmat_dat) {
+void MCMC_state::compute_h2(const mcmc_data &dat) {
 
     double h2_tmp = 0;
     h2 = 0;
@@ -541,14 +540,14 @@ void mcmc(const string &ref_path, const string &ss_path, \
 	state.sample_eta(ldmat_dat);
 
 	if ((j>burn) && (j%thin == 0)) {
-	    state.compute_h2(dat, ldmat_dat);
+	    state.compute_h2(dat);
 	    samples.h2 += state.h2*square(state.eta) / n_pst;
 	    gsl_blas_daxpy(state.eta/n_pst, state.beta, \
 		    samples.beta);
 	}
 
 	if (j % 100 == 0) {
-	    state.compute_h2(dat, ldmat_dat);
+	    state.compute_h2(dat);
 	    cout << j << " iter. h2: " << state.h2*square(state.eta) << \
 		" max beta: " << gsl_vector_max(state.beta)*state.eta \
 		 << endl;

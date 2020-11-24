@@ -74,8 +74,7 @@ class MCMC_state {
 	void sample_alpha();
 	void sample_beta(size_t j, const mcmc_data &dat, \
 		       ldmat_data &ldmat_dat);
-	void compute_h2(const mcmc_data &dat, \
-		const ldmat_data &ldmat_dat);
+	void compute_h2(const mcmc_data &dat);
 	void sample_eta(const ldmat_data &ldmat_dat);
 
     private:

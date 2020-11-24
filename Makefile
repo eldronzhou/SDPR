@@ -1,12 +1,12 @@
 
 CC = g++
 
-CFLAGS = -g3 -O3 -DHAVE_INLINE -march=native -Igsl/include -std=c++11 -Wall 
+CFLAGS = -g3 -O3 -DHAVE_INLINE -march=native -Igsl/include -std=c++11 -Wall -Wextra -pedantic
 
 all: SDPR
 
 SDPR: SDPR_io.o LD.o parse_gen.o mcmc.o function_pool.o main.o
-	${CC} ${CFLAGS} -Lgsl/lib/ -LMKL/lib/ -lgsl -lmkl_rt -lm -lpthread -ldl SDPR_io.o LD.o parse_gen.o mcmc.o function_pool.o main.o -o SDPR
+	${CC} ${CFLAGS} -Lgsl/lib/ -Wl,-rpath gsl/lib -lgsl -LMKL/lib/ -Wl,--no-as-needed,-rpath MKL/lib/ -lmkl_rt -lm -lpthread -ldl SDPR_io.o LD.o parse_gen.o mcmc.o function_pool.o main.o -o SDPR
 
 SDPR_io.o: SDPR_io.cpp SDPR_io.h
 	${CC} ${CFLAGS} -c SDPR_io.cpp

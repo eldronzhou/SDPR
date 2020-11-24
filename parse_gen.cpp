@@ -147,8 +147,7 @@ void parse_ss(const string &ss_path, unordered_map<string, \
     infile.close();
 }
 
-void parse_ld_mat(const string &ldmat_path, const string &ss_path,\
-	unordered_map<string, CoordInfo*> &ref_dict, \
+void parse_ld_mat(const string &ldmat_path, unordered_map<string, CoordInfo*> &ref_dict, \
 	const vector<pair<size_t, size_t>> &boundary, \
 	const vector<string> &SNP, mcmc_data &dat) {
     
@@ -222,7 +221,7 @@ void coord(const string &ref_path, const string &ss_path, \
     }
 
     parse_ss(ss_path, ref_dict, sz);    
-    parse_ld_mat(ldmat_path, ss_path, \
+    parse_ld_mat(ldmat_path, \
 	    ref_dict, boundary, SNP, dat);
     for (it=ref_dict.begin(); it != ref_dict.end(); it++) {
 	 delete(it->second);
