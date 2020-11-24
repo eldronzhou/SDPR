@@ -8,7 +8,7 @@ We currently test SDPR on linux x86_64. We will check whether the current versio
 
 1. download the precompiled [binary exectuable](https://github.com/eldronzhou/SDPR/blob/main/bin/SDPR). If you plan to run SDPR on a linux system with a modern intel processor, you can just use this version.
 
-2. Compile from the source. 
+2. compile from the source. 
 
 # Running SDPR
 
@@ -21,6 +21,8 @@ SDPR -h
 SDPR provides two functions: (1) estimating and paritioning of the reference LD matrix (2) perform MCMC to estimate the posterior effect sizes for each SNP. The example usage is:
 
 ```bash
+cd test/
+
 # make the refernce
 SDPR -make_ref -ref_prefix genotype/eur_chr22 -chr 22 -ref_dir ref/
 
@@ -31,7 +33,7 @@ SDPR -mcmc -ref_dir ref/ -ss summary_stat/sim_1.txt -N 503 -chr 22 -out result/S
 
 # Help
 
-We provide guidance on how to use SDPR in the manual. If you encounter Bugs, request new features, or have any questions related to installing and running SDPR, please report to the [issue](https://github.com/eldronzhou/SDPR/issues) page. 
+We provide guidance on how to use SDPR in the manual. If you encounter bugs, request new features, or have any questions related to installing and running SDPR, please report to the [issue](https://github.com/eldronzhou/SDPR/issues) page. 
 
 # License
 
