@@ -6,7 +6,7 @@ SDPR (Summary statistics based Dirichelt Process Regression) is a method to comp
 
 We currently test SDPR on linux x86_64. We will check whether the current version works for Mac soon. There are two ways to install SDPR. 
 
-1. download the precompiled [binary exectuable](https://github.com/eldronzhou/SDPR/blob/main/bin/SDPR). If you plan to run SDPR on a linux system with a modern intel processor, this version probably works properly.
+1. download the [precompiled binary](https://github.com/eldronzhou/SDPR/blob/main/bin/SDPR). If you plan to run SDPR on a linux system with a modern intel processor, this version probably works well.
 
 2. compiling from the source. 
 
