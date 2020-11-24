@@ -6,11 +6,16 @@ SDPR (Summary statistics based Dirichelt Process Regression) is a method to comp
 
 We currently test SDPR on linux x86_64. We will check whether the current version works for Mac soon. There are two ways to install SDPR. 
 
-1. download the precompiled [binary exectuable](https://github.com/eldronzhou/SDPR/blob/main/bin/SDPR). If you plan to run SDPR on a linux system with a modern intel processor, you can just use this version.
+1. download the precompiled [binary exectuable](https://github.com/eldronzhou/SDPR/blob/main/bin/SDPR). If you plan to run SDPR on a linux system with a modern intel processor, this version probably works properly.
 
-2. compile from the source. 
+2. compiling from the source. 
 
-# Running SDPR
+```
+git clone https://github.com/eldronzhou/SDPR.git
+make
+```
+
+# Quick start
 
 SDPR can be run from the command line. To see the full list of options, please refer to our manual or type
 
@@ -18,7 +23,7 @@ SDPR can be run from the command line. To see the full list of options, please r
 SDPR -h
 ```
 
-SDPR provides two functions: (1) estimating and paritioning of the reference LD matrix (2) perform MCMC to estimate the posterior effect sizes for each SNP. The example usage is:
+SDPR provides two functions: (1) estimating and paritioning of the reference LD matrix (2) perform MCMC to estimate the posterior effect sizes for each SNP. We provide an example usage for the test dataset:
 
 ```bash
 cd test/
@@ -30,6 +35,7 @@ SDPR -make_ref -ref_prefix genotype/eur_chr22 -chr 22 -ref_dir ref/
 SDPR -mcmc -ref_dir ref/ -ss summary_stat/sim_1.txt -N 503 -chr 22 -out result/SDPR_chr22.txt
 ```
 
+You may refer to the manual for examples of real data applications.
 
 # Help
 
