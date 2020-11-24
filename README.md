@@ -2,13 +2,16 @@
 
 SDPR (Summary statistics based Dirichelt Process Regression) is a method to compute polygenic risk score (PRS) from summary statistics. It is the extension of Dirichlet Process Regression ([DPR](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5587666/pdf/41467_2017_Article_470.pdf)) to the use of summary statistics. More details can be found in the preprint.
 
+
 # Installation
 
-We currently test SDPR on linux x86_64. We will check whether the current version works for Mac soon. There are two ways to install SDPR. 
+Currently we have only tested SDPR on linux x86_64 as SDPR explictly uses SSE instruction. We are checking whether SDPR works for other operating systems and architecture. 
+
+There are two ways to install SDPR, assuming you are working on linux x86_64. 
 
 1. download the [precompiled binary](https://github.com/eldronzhou/SDPR/blob/main/bin/SDPR). If you plan to run SDPR on a linux system with a modern intel processor, this version probably works well.
 
-2. compiling from the source. 
+2. compiling from the source. You need g++ (tested under version 4.8.5), GSL (2.60) and MKL library. 
 
 ```
 git clone https://github.com/eldronzhou/SDPR.git
@@ -17,13 +20,13 @@ make
 
 # Quick start
 
-SDPR can be run from the command line. To see the full list of options, please refer to our manual or type
+SDPR can be run from the command line. To see the full list of options, please type
 
 ```bash
 SDPR -h
 ```
 
-SDPR provides two functions: (1) estimating and paritioning of the reference LD matrix (2) perform MCMC to estimate the posterior effect sizes for each SNP. We provide an example usage for the test dataset:
+SDPR provides two functions: (1) estimating and paritioning the reference LD matrix (2) perform MCMC to estimate the posterior effect sizes for each SNP. We provide an example usage for the test dataset:
 
 ```bash
 cd test/
@@ -35,11 +38,9 @@ SDPR -make_ref -ref_prefix genotype/eur_chr22 -chr 22 -ref_dir ref/
 SDPR -mcmc -ref_dir ref/ -ss summary_stat/sim_1.txt -N 503 -chr 22 -out result/SDPR_chr22.txt
 ```
 
-You may refer to the manual for examples of real data applications.
-
 # Help
 
-We provide guidance on how to use SDPR in the manual. If you encounter bugs, request new features, or have any questions related to installing and running SDPR, please report to the [issue](https://github.com/eldronzhou/SDPR/issues) page. 
+We provide detailed guidance on how to use SDPR in the manual. If you encounter bugs, request new features, or have any questions related to installing and running SDPR, please report to the [issue](https://github.com/eldronzhou/SDPR/issues) page. 
 
 # License
 
