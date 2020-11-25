@@ -1,0 +1,166 @@
+---
+title: "SDPR Manual"
+author: Geyu Zhou
+date: 11/24/2020
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Table of contents
+
+## 1. Introduction
+
+SDPR is software developed to predict the complex traits based on GWAS summary statistics. It fits a Bayesian nonparametric model using Markov Chain Monte Carlo (MCMC) to estimate the effect sizes of each SNP. SDPR is adaptive to different genetic architectures and does not rely on external validation datasets for parameter tuning.
+
+## 2. Installation
+
+Currently we have only tested SDPR on Linux x86 as SDPR explicitly uses SSE instruction. We are checking whether SDPR works for other operating systems and architecture. To install SDPR, you need to first download the repo:
+
+```
+git clone https://github.com/eldronzhou/SDPR.git
+```
+
+There are two ways to install SDPR, assuming you are working on Linux x86. 
+
+1. If you plan to run SDPR on a Linux system with a modern Intel processor, you may use the precompiled binary. Move it to the main directory by typing `mv bin/SDPR ./`. Please make sure that dynamic libraries `gsl/lib/libgsl.so` and `MKL/lib/libmkl_rt.so` are not changed, otherwise SDPR is unable to load the libraries.
+
+
+2. If you want to compile SDPR from the source for best performance, you need a C/C++ compiler like g++ (tested under version 4.8.5), GSL (version 2.60) and MKL library (version 2017). For convenience, we redistribute the compiled GSL and MKL building on our Intel Xeon Processors in the repo. To install, type `make`. If this version does not work, please report the error to the issue page. If the issue is related to GSL, you may want to download the source code of GSL and compile it yourself. For details about downloading and installing GSL, please refer to [this page](https://www.gnu.org/software/gsl/) and [this page](https://www.gnu.org/software/gsl/doc/html/usage.html#compiling-and-linking). If you have other versions of MKL library, please refer to [this manual](https://software.intel.com/content/www/us/en/develop/articles/intel-mkl-link-line-advisor.html) for linking advice.
+
+You can run the test case to see whether SDPR is properly installed.
+
+```
+cd test/
+
+# make the refernce
+../SDPR -make_ref -ref_prefix genotype/eur_chr22 -chr 22 -ref_dir ref/
+
+# mcmc
+../SDPR -mcmc -ref_dir ref/ -ss summary_stat/sim_1.txt -N 503 -chr 22 -out result/SDPR_chr22.txt
+```
+
+## 3. Input Files
+
+SDPR requires two main input files: genotype of the reference panel and summary statistics. The genotype should be in the PLINK [bed](https://www.cog-genomics.org/plink2/formats#bed) format. 
+
+### 3.1 Reference LD Matrix
+
+SDPR uses an empirical Bayes based shrinkage estimator to create the reference LD matrix. It then divide the LD matrix into approximately independent blocks so that SNPs in two blocks would not have nonignorable correlation ($r^2 < r2$, $r2 = 0.1$ as default). 
+
+If you are working on summary statistics from EUR ancestry, you can download the reference LD directory [here]() consisting 1 million HapMap3 SNPs estimated from 503 1000 Genome EUR samples. You can also create the reference LD for your preferred reference panel by running the command below. 
+
+```
+# 1 thread 
+for ${i} in {1..22}; do
+./SDPR -make_ref -ref_prefix prefix_ref_genotype -chr ${i} -ref_dir SDPR_ref 
+done
+
+# parallel over chr and using 3 threads for each chromosome is recommended
+```
+
+If you have memory issues regarding the large size of blocks, you can increase the value of `-r2` to 0.3 or 0.4`. This will make the size of independent blocks smaller. 
+
+### 3.2 Summary Statistics
+
+The summary statistics should be in the format of 
+
+```
+SNP	A1	A2	BETA	P
+rs737657        A       G       -2.044  0.0409
+rs7086391       T       C       -2.257  0.024
+rs1983865       T       C       3.652   0.00026
+...
+```
+
+where SNP is the marker name, A1 is the effect allele, A2 is the alternative allele, BETA is the regression coefficient for quantitative traits or log odds ratio for binary traits, and P is the p value. You may change the column names. 
+
+Raw public GWAS summary statistics usually contain SNPs that are not ideal for prediction. Thus, we recommend the following pipeline to process the summary statistics.
+
+First, clean the summary statistics using `munge_sumstats.py` provided by [LDSC](https://github.com/bulik/ldsc). This will remove strand-ambiguous SNPs (A/T and G/C), INDELs, and SNPs with an effective sample size less than 0.67 times the 90th percentile of sample size.
+
+```
+python munge_sumstats.py --sumstats your_ss --out clean
+```
+
+Second, convert the cleaned summary statistics to the input format. For example, in R you can do
+
+```
+b = read.table("clean.sumstats.gz", header=T, stringsAsFactors=F)
+# if you have the list of snps you want to keep, you can run
+# snp = read.table(path_to_snplist, stringsAsFactors=F)
+# b = b[b$SNP %in% snp$V1,]
+stopifnot(any(is.real(b$P)))
+b$P = 2*pnorm(-abs(b$Z))
+colnames(b) = c("SNP","A1","A2","BETA","N","P")
+write.table(b[,c(1,2,3,4,6)], file="SDPR.txt", append=F, sep="\t", quote=F, row.names=F, col.names=T)
+```
+
+Third, when using out-of-sample reference LD and public GWAS summary statistics, there are possibilities that model is mis-specified for SNPs (details in the manuscript). We consider two possibilities in SDPR: deflation of summary statistics and discrepancy for SNPs in strong LD. 
+
+You can run LDSC to check whether there is deflation due to the use of double genomic control.
+
+```
+ldsc.py --h2 clean.sumstats.gz --ref-ld-chr path_to_ref 
+--out ./clean_h2 --w-ld-chr path_to_ref
+```
+
+If the intercept output by LDSC is way smaller than 1, you may want to use [SumHer](http://dougspeed.com/sumher-server/) to obtain the correction factor and pass the squared root using the flag `-c`. For example, if the intercept is no less than 0.8, then it is safe to use the default value 1. If the intercept is 0.64, and the correction factor of SumHer is 0.5, then you can set the flag `-c ` to 0.7.
+
+If you are using in-sample LD reference, you probably would not encounter the discrepancy for SNPs in strong LD. Unless SDPR reports the error of non-positive definite matrix, you can change the value of flag `-a` to 0. When using out-of-sample LD reference such as 1000 Genome, it is safe to set the flag `-a` to 0.1 (default) to make the model more robust.
+
+## 4. Running SDPR
+
+When running in parallel using (22*3 = 66 threads), SDPR is able to finish MCMC in around 15 minutes based on our experience.
+
+```
+# for chr i using 3 threads
+# recommend to run each chr in parallel
+./SDPR -mcmc -ref_dir ref/ -ss ss.txt -N 10000 -chr i -out res.txt -n_threads 3
+```
+
+Once having the output, one can use [PLINK](https://www.cog-genomics.org/plink/1.9/score) to derive the PRS. 
+
+## 5. Options
+
+-make-ref estimate reference LD matrix.
+
+-mcmc perform MCMC.
+
+-ss (required for -make_ref) path to the summary statistics file. We recommend to follow our pipeline to clean up summary statistics by running munge_sumstats.py.
+
+-ref_prefix (required for -make_ref) path to the prefix of the bim file for the reference panel, not including the .bim suffix.
+
+-ref_dir (required) path to the directory that contains the reference LD information output by SDPR, containing .snpInfo and .dat file.
+
+-valid (optional) path to the bim file for the testing dataset, including the .bim suffix.
+
+-out (required for -mcmc) path to the output file containing estimated effect sizes.
+
+-chr (required) chromsome to work on. Currently support 1-22. Recommend to run in parallel.
+
+-N (required for -mcmc) GWAS sample size.
+
+-M (optional) Max number of variance components. M must be greater than 4. Default is 1000.
+
+-iter (optional) number of iterations for MCMC. Default is 1000.
+
+-burn (optional) number of burn-in for MCMC. Default is 200.
+
+-thin (optional) Thinning for MCMC. Default is 1 (no thin). 
+
+-n_threads (optional) number of threads to use. Default is 1.
+
+-r2 (optional) r2 cut-off for partition of independent blocks. Default is 0.1.
+ 
+-a (optional) factor to shrink the reference LD matrix. Default is 0.1. Please refer to the manual for more information.
+
+-c (optional) factor to correct for the deflation. Default is 1. Please refer to the manual for more information.
+
+-a0k (optional) hyperparameter for inverse gamma distribution. Default is 0.5.
+
+-b0k (optional) hyperparameter for inverse gamma distribution. Default is 0.5.
+
