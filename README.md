@@ -68,7 +68,7 @@ rs1983865       T       C       3.652   0.00026
 
 where SNP is the marker name, A1 is the effect allele, A2 is the alternative allele, BETA is the regression coefficient for quantitative traits or log odds ratio for binary traits, and P is the p value. You may change the column names. 
 
-Please refer to the [manual](https://raw.githubusercontent.com/eldronzhou/SDPR/blob/main/doc/Manual.html) for preprocessing of public GWAS summary statistics.
+Please refer to the [manual](http://htmlpreview.github.io/?https://github.com/eldronzhou/SDPR/blob/main/doc/Manual.html) for preprocessing of public GWAS summary statistics.
 
 ## Running SDPR
 
@@ -84,7 +84,7 @@ Once having the ouput, one can use [PLINK](https://www.cog-genomics.org/plink/1.
 
 ## Help
 
-We provide detailed guidance on how to use SDPR in the [manual](https://raw.githubusercontent.com/eldronzhou/SDPR/blob/main/doc/Manual.html). If you encounter bugs, request new features, or have any questions related to installing and running SDPR, please report to the [issue](https://github.com/eldronzhou/SDPR/issues) page. 
+We provide detailed guidance on how to use SDPR in the [manual](http://htmlpreview.github.io/?https://github.com/eldronzhou/SDPR/blob/main/doc/Manual.html). If you encounter bugs, request new features, or have any questions related to installing and running SDPR, please report to the [issue](https://github.com/eldronzhou/SDPR/issues) page. 
 
 ## License
 
