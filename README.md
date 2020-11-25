@@ -3,27 +3,26 @@
 SDPR (Summary statistics based Dirichelt Process Regression) is a method to compute polygenic risk score (PRS) from summary statistics. It is the extension of Dirichlet Process Regression ([DPR](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5587666/pdf/41467_2017_Article_470.pdf)) to the use of summary statistics. More details can be found in the preprint.
 
 
-# Installation
+## Installation
 
-Currently we have only tested SDPR on linux x86_64 as SDPR explictly uses SSE instruction. We are checking whether SDPR works for other operating systems and architecture. 
-
-There are two ways to install SDPR, assuming you are working on linux x86_64. 
-
-1. download the [precompiled binary](https://github.com/eldronzhou/SDPR/blob/main/bin/SDPR). If you plan to run SDPR on a linux system with a modern intel processor, this version probably works well.
-
-2. compiling from the source. You need g++ (tested under version 4.8.5), GSL (2.60) and MKL library. 
+Currently we have only tested SDPR on linux x86 as SDPR explictly uses SSE instruction. We are checking whether SDPR works for other operating systems and architecture. To install SDPR, you need to first download the repo:
 
 ```
 git clone https://github.com/eldronzhou/SDPR.git
-make
 ```
 
-# Quick start
+There are two ways to install SDPR, assuming you are working on linux x86. 
+
+1. If you plan to run SDPR on a linux system with a modern intel processor, you may use the precompiled binary. Move it to the main directory by typing `mv bin/SDPR ./`. Please make sure that dynamic libraries `gsl/lib/libgsl.so` and `MKL/lib/libmkl_rt.so` are not changed, otherwise SDPR is unable to load the libraries. 
+
+2. If you want to compile SDPR from the source for best performance, you need a C/C++ compiler like g++ (tested under version 4.8.5), GSL (version 2.60) and MKL library (version 2017). For convenience, we redistribute the compiled GSL and MKL building on our Intel Xeon Processors in the repo. To install, type `make`. If this version does not work, please report the error to the issue page. If the issue is related to GSL, you may want to download the source code of GSL and compile it yourself. For details about downloading and installing GSL, please refer to [this page](https://www.gnu.org/software/gsl/) and [this page](https://www.gnu.org/software/gsl/doc/html/usage.html#compiling-and-linking). If you have other versions of MKL library, please refer to [this manual](https://software.intel.com/content/www/us/en/develop/articles/intel-mkl-link-line-advisor.html) for linking advice.
+
+## Quick start
 
 SDPR can be run from the command line. To see the full list of options, please type
 
 ```bash
-SDPR -h
+./SDPR -h
 ```
 
 SDPR provides two functions: (1) estimating and paritioning the reference LD matrix (2) perform MCMC to estimate the posterior effect sizes for each SNP. We provide an example usage for the test dataset:
@@ -32,21 +31,66 @@ SDPR provides two functions: (1) estimating and paritioning the reference LD mat
 cd test/
 
 # make the refernce
-SDPR -make_ref -ref_prefix genotype/eur_chr22 -chr 22 -ref_dir ref/
+../SDPR -make_ref -ref_prefix genotype/eur_chr22 -chr 22 -ref_dir ref/
 
 # mcmc
-SDPR -mcmc -ref_dir ref/ -ss summary_stat/sim_1.txt -N 503 -chr 22 -out result/SDPR_chr22.txt
+../SDPR -mcmc -ref_dir ref/ -ss summary_stat/sim_1.txt -N 503 -chr 22 -out result/SDPR_chr22.txt
 ```
 
-# Help
+## Input 
 
-We provide detailed guidance on how to use SDPR in the manual. If you encounter bugs, request new features, or have any questions related to installing and running SDPR, please report to the [issue](https://github.com/eldronzhou/SDPR/issues) page. 
+### Reference LD
 
-# License
+If you are working on summary statistics from EUR ancestry, you can download the reference LD directory [here]() consisting 1 million HapMap3 SNPs estimated from 503 1000 Genome EUR samples. You can also create the reference LD for your preferred reference panel by running the command below. 
+
+```
+# 1 thread 
+for ${i} in {1..22}; do
+./SDPR -make_ref -ref_prefix prefix_ref_genotype -chr ${i} -ref_dir SDPR_ref 
+done
+
+# parallel over chr and using 3 threads for each chromosome is recommended
+```
+
+If you have memory issues regarding the large size of blocks, you can increase the value of `-r2` to 0.3 or 0.4. This will make the size of independent blocks smaller. 
+
+### Summary Statistics 
+
+The summary statistics should be in the format of 
+
+```
+SNP	A1	A2	BETA	P
+rs737657        A       G       -2.044  0.0409
+rs7086391       T       C       -2.257  0.024
+rs1983865       T       C       3.652   0.00026
+...
+```
+
+where SNP is the marker name, A1 is the effect allele, A2 is the alternative allele, BETA is the regression coefficient for quantitative traits or log odds ratio for binary traits, and P is the p value. You may change the column names. 
+
+Please refer to the [manual](https://raw.githubusercontent.com/eldronzhou/SDPR/blob/main/doc/Manual.html) for preprocessing of public GWAS summary statistics.
+
+## Running SDPR
+
+When running in parallel using (22*3 = 66 threads), SDPR is able to finish MCMC in around 15 minutes based on our experience.
+
+```
+# for chr i using 3 threads
+# recommend to run each chr in parallel
+./SDPR -mcmc -ref_dir ref/ -ss ss.txt -N 10000 -chr i -out res.txt -n_threads 3
+```
+
+Once having the ouput, one can use [PLINK](https://www.cog-genomics.org/plink/1.9/score) to derive the PRS. 
+
+## Help
+
+We provide detailed guidance on how to use SDPR in the [manual](https://raw.githubusercontent.com/eldronzhou/SDPR/blob/main/doc/Manual.html). If you encounter bugs, request new features, or have any questions related to installing and running SDPR, please report to the [issue](https://github.com/eldronzhou/SDPR/issues) page. 
+
+## License
 
 SDPR is devloped by [Zhao lab](http://zhaocenter.org) at Yale University. The source code is distributed under the [GPL license](https://github.com/eldronzhou/SDPR/blob/main/LICENSE). SDPR uses [GSL](https://www.gnu.org/software/gsl/) (GNU Scientific Library), which is also redistributed under the GPL license. We provide a copy of [Intel® MKL®](https://software.intel.com/content/www/us/en/develop/tools/math-kernel-library.html) library for dynamic linking, which is redistributed under the [Intel Simple Software License](https://github.com/eldronzhou/SDPR/blob/main/MKL/intel-simplified-software-license.pdf).
 
-# Citation
+## Citation
 
 Preprint coming soon.
 
