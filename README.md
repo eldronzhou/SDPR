@@ -72,7 +72,7 @@ Please refer to the [manual](http://htmlpreview.github.io/?https://github.com/el
 
 ## Running SDPR
 
-When running in parallel using (22*3 = 66 threads), SDPR is able to finish MCMC in around 15 minutes based on our experience.
+When running in parallel using (22*3 = 66 threads), SDPR is able to finish MCMC in around 15 minutes for ~0.8 million Hapmap3 SNPs on an Intel Xeon processor.
 
 ```
 # for chr i using 3 threads
