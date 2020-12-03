@@ -41,7 +41,7 @@ cd test/
 
 ### Reference LD
 
-If you are working on summary statistics from EUR ancestry, you can download the reference LD directory [here]() consisting 1 million HapMap3 SNPs estimated from 503 1000 Genome EUR samples. You can also create the reference LD for your preferred reference panel by running the command below. 
+If you are working on summary statistics from EUR ancestry, you can download the reference LD directory [here](https://drive.google.com/file/d/1QptXfQAyH5Ydyqzew7lxMz7fmydqw-r3/view?usp=sharing) consisting 1 million HapMap3 SNPs estimated from 503 1000 Genome EUR samples. You can also create the reference LD for your preferred reference panel by running the command below. 
 
 ```
 # 1 thread 
@@ -80,7 +80,23 @@ When running in parallel using (22*3 = 66 threads), SDPR is able to finish MCMC 
 ./SDPR -mcmc -ref_dir ref/ -ss ss.txt -N 10000 -chr i -out res.txt -n_threads 3
 ```
 
-Once having the ouput, one can use [PLINK](https://www.cog-genomics.org/plink/1.9/score) to derive the PRS. 
+The output has format:
+
+```
+SNP     A1      beta
+rs12255619      C       -0.000124535
+rs7909677       G       -0.000106013
+rs10904494      C       -0.000178207
+...
+```
+
+where SNP is the marker name, A1 is the effect allele, beta is the estimated posterior effect sizes.
+
+Once having the ouput, one can use [PLINK](https://www.cog-genomics.org/plink/1.9/score) to derive the PRS.
+
+```
+plink --bfile test_geno --score res.txt 1 2 3 header --out test
+```
 
 ## Help
 
@@ -92,7 +108,7 @@ SDPR is devloped by [Zhao lab](http://zhaocenter.org) at Yale University. The so
 
 ## Citation
 
-Preprint coming soon.
+Geyu Zhou, Hongyu Zhao. A fast and robust Bayesian nonparametric method for prediction of complex traits using summary statistics. bioRxiv 2020.11.30.405241; doi: https://doi.org/10.1101/2020.11.30.405241.
 
 
 
