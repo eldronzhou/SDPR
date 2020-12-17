@@ -53,7 +53,7 @@ int main(int argc, char *argv[]) {
 
     string ss_path, ref_prefix, ref_dir, valid_bim, out_path;
     int N = 0, n_threads = 1, chr = 0;
-    double a = 0, c = 1, a0k = .5, b0k = .5, r2 = .1;
+    double a = 0.1, c = 1, a0k = .5, b0k = .5, r2 = .1;
     size_t M = 1000;
     int iter = 1000, burn = 200, thin = 5;
     int make_ref = 0, run_mcmc = 0;
