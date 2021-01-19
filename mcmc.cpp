@@ -144,7 +144,7 @@ void MCMC_state::sample_assignment(size_t j, const mcmc_data &dat, \
 
 	_mm_store_ss(&max_elem, _v);
 
-	for (; k<M; k++); {
+	for (; k<M; k++) {
 	    max_elem = (max_elem > prob[i][k]) ? \
 		    (max_elem) : (prob[i][k]);
 	}
