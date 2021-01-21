@@ -138,9 +138,9 @@ void parse_ss(const string &ss_path, unordered_map<string, \
 	}
     }
 
-    cout << n_flip << "SNPs have flipped alleles between summary statistics and " 
+    cout << n_flip << " SNPs have flipped alleles between summary statistics and " 
 	<< "reference panel." << endl;
-    cout << n_bad << "SNPs removed due to mismatch of allels between " 
+    cout << n_bad << " SNPs removed due to mismatch of allels between " 
 	<< "summary statistics and reference panel." << endl;
     cout << n << " common SNPs among reference, validation "
 	"and gwas summary statistics." << endl;
