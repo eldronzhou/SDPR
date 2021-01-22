@@ -6,7 +6,7 @@ CFLAGS = -g3 -O3 -DHAVE_INLINE -march=native -Igsl/include -std=c++11 -Wall -Wex
 all: SDPR
 
 SDPR: SDPR_io.o LD.o parse_gen.o mcmc.o function_pool.o main.o
-	${CC} ${CFLAGS} -Lgsl/lib/ -Wl,-rpath gsl/lib -lgsl -LMKL/lib/ -Wl,--no-as-needed,-rpath MKL/lib/ -lmkl_rt -lm -lpthread -ldl SDPR_io.o LD.o parse_gen.o mcmc.o function_pool.o main.o -o SDPR
+	${CC} ${CFLAGS} SDPR_io.o LD.o parse_gen.o mcmc.o function_pool.o main.o -Lgsl/lib/ -Wl,-rpath gsl/lib -lgsl -LMKL/lib/ -Wl,--no-as-needed,-rpath MKL/lib/ -lmkl_rt -lm -lpthread -ldl -o SDPR
 
 SDPR_io.o: SDPR_io.cpp SDPR_io.h
 	${CC} ${CFLAGS} -c SDPR_io.cpp
