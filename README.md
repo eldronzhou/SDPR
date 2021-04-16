@@ -1,3 +1,7 @@
+Known issues:
+
+We found SDPR may encounter convergence issue when the sample size for each SNP differs. We are working on a fix and will update the software shortly.
+
 # SDPR
 
 SDPR (Summary statistics based Dirichelt Process Regression) is a method to compute polygenic risk score (PRS) from summary statistics. It is the extension of Dirichlet Process Regression ([DPR](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5587666/pdf/41467_2017_Article_470.pdf)) to the use of summary statistics. More details can be found in the preprint.
