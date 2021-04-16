@@ -1,4 +1,4 @@
-Known issues:
+# Known issues:
 
 We found SDPR may encounter convergence issue when the sample size for each SNP differs. We are working on a fix and will update the software shortly.
 
