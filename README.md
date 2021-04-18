@@ -49,7 +49,7 @@ If you are working on summary statistics from EUR ancestry, you can download the
 
 ```
 # 1 thread 
-for ${i} in {1..22}; do
+for i in {1..22}; do
 ./SDPR -make_ref -ref_prefix prefix_ref_genotype -chr ${i} -ref_dir SDPR_ref 
 done
 
