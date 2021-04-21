@@ -157,8 +157,8 @@ int main(int argc, char *argv[]) {
 		cout << "Incorrect number of iterations: " << argv[i+1] << endl;
 		return 0;
 	    }
-	    if (burn <= iter) {
-		cout << "Error: burnin is smaller than number of iterations." << endl;
+	    if (burn >= iter) {
+		cout << "Error: burnin is larger than number of iterations." << endl;
 		return 0;
 	    }
 	    i += 2;
