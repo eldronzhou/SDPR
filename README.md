@@ -1,6 +1,6 @@
 # Known issues:
 
-We found SDPR may encounter convergence issue when the sample size for each SNP differs. We are working on a fix and will update the software in two weeks. -4.16.2021
+We found SDPR may encounter convergence issue when the sample size for each SNP differs. We are working on a fix and will update the software soon. -4.16.2021
 
 # SDPR
 
