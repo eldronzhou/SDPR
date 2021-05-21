@@ -107,14 +107,15 @@ void parse_ss(const string &ss_path, unordered_map<string, \
     }
 
     string id, A1, A2, header;
-    double beta, pval;
+    double beta, pval, N;
     int n = 0;
     getline(infile, header);
     unordered_map<string, CoordInfo*>::iterator idx;
 
     int n_flip = 0, n_bad = 0;
-    while (infile >> id >> A1 >> A2 >> beta >> pval) {
+    while (infile >> id >> A1 >> A2 >> beta >> pval >> N) {
 	idx = ref_dict.find(id);
+	sz = N;
 	if (pval <= 1e-323) {
 	    pval = 1e-323;
 	}
