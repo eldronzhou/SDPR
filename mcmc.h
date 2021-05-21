@@ -35,6 +35,10 @@ class MCMC_state {
 	MCMC_state(size_t num_snp, size_t max_cluster, \
 		double a0, double b0, double sz) {
 	    a0k = a0; b0k = b0; N = sz;
+	    // Changed May 20 2021
+	    // Now N (sz) is absorbed into A, B; so set to 1.
+	    N = 1.0;
+
 	    n_snp = num_snp;
 	    M = max_cluster;
 	    alpha = 1;

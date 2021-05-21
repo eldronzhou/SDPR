@@ -55,7 +55,7 @@ void MCMC_state::calc_b(size_t j, const mcmc_data &dat, const ldmat_data &ldmat_
     gsl_blas_dsymv(CblasUpper, -eta*eta, ldmat_dat.B[j], &beta_j.vector, \
 	    eta*eta, &b_j.vector);
 
-    // eta^2 * (diag(B) \times beta) - eta^2 * B beta + eta * A beta_mrg
+    // eta^2 * (diag(B) \times beta) - eta^2 * B beta + eta * A^T beta_mrg
     gsl_blas_daxpy(eta, ldmat_dat.calc_b_tmp[j], &b_j.vector);
 }
 
@@ -83,6 +83,7 @@ void MCMC_state::sample_assignment(size_t j, const mcmc_data &dat, \
 	rnd[i] = gsl_rng_uniform(r);
     }
 
+    // N = 1.0 after May 21 2021
     float C = pow(eta, 2.0) * N;
 
     // auto vectorized
@@ -316,6 +317,7 @@ void MCMC_state::sample_beta(size_t j, const mcmc_data &dat, \
     }
 
     for (size_t i=0; i<causal_list.size(); i++) {
+	// N = 1.0 after May 21 2021
 	// A_vec = N A[,idx].T beta_mrg = N A beta_mrg[idx]
 	gsl_vector_set(A_vec, i, N*eta*gsl_vector_get(ldmat_dat.calc_b_tmp[j], \
 		    causal_list[i]-start_i));
@@ -422,7 +424,7 @@ void MCMC_state::sample_eta(const ldmat_data &ldmat_dat) {
 }
 
 void solve_ldmat(const mcmc_data &dat, ldmat_data &ldmat_dat, \
-	const double a) {
+	const double a, unsigned sz) {
     for (size_t i=0; i<dat.ref_ld_mat.size(); i++) {
 	size_t size = dat.boundary[i].second - dat.boundary[i].first;
 	gsl_matrix *A = gsl_matrix_alloc(size, size);
@@ -432,7 +434,8 @@ void solve_ldmat(const mcmc_data &dat, ldmat_data &ldmat_dat, \
 	gsl_matrix_memcpy(B, dat.ref_ld_mat[i]);
 	gsl_matrix_memcpy(L, dat.ref_ld_mat[i]);
 
-	// (R + aNI)A = R via cholesky decomp
+	// (R + aNI) / N A = R via cholesky decomp
+	// Changed May 21 2021 to divide by N
 	// replace aN with a
 	gsl_vector_view diag = gsl_matrix_diagonal(B);
 	gsl_vector_add_constant(&diag.vector, a);
@@ -441,23 +444,26 @@ void solve_ldmat(const mcmc_data &dat, ldmat_data &ldmat_dat, \
 		CblasNonUnit, 1.0, B, A);
 	gsl_blas_dtrsm(CblasLeft, CblasLower, CblasTrans, \
 		                CblasNonUnit, 1.0, B, A);
+	gsl_matrix_scale(A, sz);
 
 	// B = RA
-	gsl_blas_dsymm(CblasLeft, CblasUpper, 1.0, L, A, 0, B);
+	// Changed May 21 2021 as A may not be symmetric
+	//gsl_blas_dsymm(CblasLeft, CblasUpper, 1.0, L, A, 0, B);
+	gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, L, A, 0, B);
 	
 	// L = R %*% R;
 	gsl_matrix_mul_elements(L, L);
 
-	// memory allocation for A beta_mrg
+	// memory allocation for A^T beta_mrg
+	// Changed May 21 2021 from A to A^T
 	gsl_vector *beta_mrg = gsl_vector_alloc(size);
 	for (size_t j=0; j<size; j++) {
 	    gsl_vector_set(beta_mrg, j, dat.beta_mrg[j+dat.boundary[i].first]);
 	}
 	gsl_vector *b_tmp = gsl_vector_alloc(size);
 
-
-	gsl_blas_dsymv(CblasUpper, 1.0, A, beta_mrg, \
-		            0, b_tmp);
+	//gsl_blas_dsymv(CblasUpper, 1.0, A, beta_mrg, 0, b_tmp);
+	gsl_blas_dgemv(CblasTrans, 1.0, A, beta_mrg, 0, b_tmp);
 
 	ldmat_dat.A.push_back(A);
 	ldmat_dat.B.push_back(B);
@@ -502,7 +508,7 @@ void mcmc(const string &ref_path, const string &ss_path, \
     
     MCMC_samples samples = MCMC_samples(dat.beta_mrg.size());
    
-    solve_ldmat(dat, ldmat_dat, a);
+    solve_ldmat(dat, ldmat_dat, a, sz);
     state.update_suffstats();
 
     Function_pool func_pool(n_threads);
