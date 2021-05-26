@@ -3,6 +3,8 @@
 #include <unordered_map>
 #include <stdexcept>
 #include "gsl/gsl_cdf.h"
+#include "gsl/gsl_eigen.h"
+#include "gsl/gsl_blas.h"
 #include "math.h"
 #include <fstream>
 #include <sstream>
@@ -108,12 +110,13 @@ void parse_ss(const string &ss_path, unordered_map<string, \
 
     string id, A1, A2, header;
     double beta, pval, N;
-    int n = 0;
+    int n = 0, array;
     getline(infile, header);
     unordered_map<string, CoordInfo*>::iterator idx;
 
     int n_flip = 0, n_bad = 0;
-    while (infile >> id >> A1 >> A2 >> beta >> pval >> N) {
+   
+    while (infile >> id >> A1 >> A2 >> beta >> pval >> N >> array) {
 	idx = ref_dict.find(id);
 	sz = N;
 	if (pval <= 1e-323) {
@@ -124,12 +127,18 @@ void parse_ss(const string &ss_path, unordered_map<string, \
 		idx->second->include_ss = true;
 		idx->second->beta = 1.0*sign(beta)* \
 		fabs(gsl_cdf_ugaussian_Pinv(pval/2.0))/sqrt(sz);
+		// Added for evaluating likelihood involving Ns
+		idx->second->array = array;
+		idx->second->sz = N;
 		n++;
 	    }
 	    else if (A1 == idx->second->A2 && A2 == idx->second->A1) {
 		idx->second->include_ss = true;
 		idx->second->beta = -1.0*sign(beta)* \
 		fabs(gsl_cdf_ugaussian_Pinv(pval/2.0))/sqrt(sz);
+		// Added for evaluating likelihood involving Ns
+		idx->second->array = array;
+		idx->second->sz = N;
 		n++;
 		n_flip++;
 	    }
@@ -172,6 +181,9 @@ void parse_ld_mat(const string &ldmat_path, unordered_map<string, CoordInfo*> &r
 		dat.A2.push_back(idx->second->A2);
 		dat.beta_mrg.push_back(idx->second->beta);
 		snp_idx.push_back(j-boundary[i].first);
+		// Added for evaluating llk involving Ns
+		dat.sz.push_back(idx->second->sz);
+		dat.array.push_back(idx->second->array);
 		right++;
 	    }
 	}
@@ -193,6 +205,7 @@ void parse_ld_mat(const string &ldmat_path, unordered_map<string, CoordInfo*> &r
 		gsl_matrix_set(tmp_mat_sub, j, k, tmp);
 	    }
 	}
+
 	dat.ref_ld_mat.push_back(tmp_mat_sub);
 	left = right;
 	gsl_matrix_free(tmp_mat);
