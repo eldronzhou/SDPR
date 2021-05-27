@@ -552,15 +552,16 @@ void mcmc(const string &ref_path, const string &ss_path, \
 	const string &valid_path, const string &ldmat_path, \
 	const string &out_path, unsigned sz, double a, double c, \
 	size_t M, double a0k, double b0k, \
-	int iter, int burn, int thin, unsigned n_threads) {
+	int iter, int burn, int thin, unsigned n_threads, int opt_llk) {
 
     // number of pst. samples 
     int n_pst = (iter-burn) / thin;
 
-    
+    cout << "Running SDPR with opt_llk " << opt_llk  << endl;
+   
     mcmc_data dat;
     coord(ref_path, ss_path, valid_path, \
-	  ldmat_path, dat, sz);
+	  ldmat_path, dat, sz, opt_llk);
 
     if (dat.beta_mrg.size() == 0) {
 	cout << "0 SNPs remained after coordination. Exit." << endl;
@@ -580,7 +581,7 @@ void mcmc(const string &ref_path, const string &ss_path, \
     
     MCMC_samples samples = MCMC_samples(dat.beta_mrg.size());
    
-    solve_ldmat(dat, ldmat_dat, a, sz, 1);
+    solve_ldmat(dat, ldmat_dat, a, sz, opt_llk);
     state.update_suffstats();
 
     Function_pool func_pool(n_threads);

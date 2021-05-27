@@ -107,7 +107,7 @@ void mcmc(const std::string &ref_path, const std::string &ss_path, \
 	const std::string &valid_path, const std::string &ldmat_path, \
 	const std::string &out_path, unsigned sz, double a, double c, \
 	size_t M, double a0k, double b0k, \
-	int iter, int burn, int thin, unsigned n_threads);
+	int iter, int burn, int thin, unsigned n_threads, int opt_llk);
 
 
 

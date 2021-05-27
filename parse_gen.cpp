@@ -1,4 +1,4 @@
-
+#include <algorithm>
 #include "parse_gen.h"
 #include <unordered_map>
 #include <stdexcept>
@@ -12,7 +12,7 @@
 using std::ifstream; using std::string;
 using std::vector; using std::unordered_map; 
 using std::cout; using std::endl;
-using std::pair;
+using std::pair; using std::find;
 
 double sign(double x) {
     if (x > 0) return 1.0;
@@ -101,51 +101,135 @@ void parse_valid(const string &valid_path, \
 }
 
 void parse_ss(const string &ss_path, unordered_map<string, \
-	CoordInfo*> &ref_dict, unsigned sz) {
+	CoordInfo*> &ref_dict, unsigned sz, int opt_llk) {
     ifstream infile(ss_path.c_str());
     if (!infile) {
 	throw std::runtime_error("Error: cannot open "
 		"summary statistics: " + ss_path);
     }
 
-    string id, A1, A2, header;
+    string id, A1, A2, line;
+    std::stringstream ss;
     double beta, pval, N;
-    int n = 0, array;
-    getline(infile, header);
+    int n = 0, array = 0;
     unordered_map<string, CoordInfo*>::iterator idx;
 
-    int n_flip = 0, n_bad = 0;
-   
-    while (infile >> id >> A1 >> A2 >> beta >> pval >> N >> array) {
-	idx = ref_dict.find(id);
-	sz = N;
-	if (pval <= 1e-323) {
-	    pval = 1e-323;
+    vector<string> tokens;
+    size_t SNP_idx, A1_idx, A2_idx;
+    int beta_idx = -1, pval_idx = -1, array_idx = -1; 
+    int sz_idx = -1;
+
+    int n_flip = 0, n_bad = 0, nline = 0;
+
+    while (getline(infile, line, '\n')) {
+	ss.str(line);
+	while (ss >> line) {
+	    tokens.push_back(line);
 	}
-	if (idx != ref_dict.end() && idx->second->include_ref) {
-	    if (A1 == idx->second->A1 && A2 == idx->second->A2) {
-		idx->second->include_ss = true;
-		idx->second->beta = 1.0*sign(beta)* \
-		fabs(gsl_cdf_ugaussian_Pinv(pval/2.0))/sqrt(sz);
-		// Added for evaluating likelihood involving Ns
-		idx->second->array = array;
-		idx->second->sz = N;
-		n++;
-	    }
-	    else if (A1 == idx->second->A2 && A2 == idx->second->A1) {
-		idx->second->include_ss = true;
-		idx->second->beta = -1.0*sign(beta)* \
-		fabs(gsl_cdf_ugaussian_Pinv(pval/2.0))/sqrt(sz);
-		// Added for evaluating likelihood involving Ns
-		idx->second->array = array;
-		idx->second->sz = N;
-		n++;
-		n_flip++;
+	if (nline == 0) {
+	    // find corresponding fields in the header
+	    vector<string>::iterator token_idx;
+
+	    token_idx = find(tokens.begin(), tokens.end(), "SNP");
+	    if (token_idx != tokens.end()) {
+		SNP_idx = token_idx - tokens.begin();
 	    }
 	    else {
-		n_bad++;
+		throw std::runtime_error("Error: cannot find SNP column.");
+	    }
+
+	    token_idx = find(tokens.begin(), tokens.end(), "A1");
+	    if (token_idx != tokens.end()) {
+		A1_idx = token_idx - tokens.begin();
+	    }
+	    else {
+		throw std::runtime_error("Error: cannot find A1 column.");
+	    }
+
+	    token_idx = find(tokens.begin(), tokens.end(), "A2");
+	    if (token_idx != tokens.end()) {
+		A2_idx = token_idx - tokens.begin();
+	    }
+	    else {
+		throw std::runtime_error("Error: cannot find A2 column.");
+	    }
+	    
+	    token_idx = find(tokens.begin(), tokens.end(), "BETA");
+	    if (token_idx != tokens.end()) {
+		beta_idx = token_idx - tokens.begin();
+	    }
+
+	    token_idx = find(tokens.begin(), tokens.end(), "P");
+	    if (token_idx != tokens.end()) {
+		pval_idx = token_idx - tokens.begin();
+	    }
+	    
+	    token_idx = find(tokens.begin(), tokens.end(), "N");
+	    if (token_idx != tokens.end()) {
+		sz_idx = token_idx - tokens.begin();
+	    }
+
+	    if (opt_llk == 2) {
+		token_idx = find(tokens.begin(), tokens.end(), "ARRAY");
+		if (token_idx != tokens.end()) {
+		    array_idx = token_idx - tokens.begin();
+		}
+		else {
+		    throw std::runtime_error("Error: cannot find ARRAY column.");
+		}
 	    }
 	}
+	else {
+	    // parse fields
+	    id = tokens[SNP_idx]; 
+	    A1 = tokens[A1_idx]; A2  = tokens[A2_idx];
+	    pval = std::stod(tokens[pval_idx]); 
+	    beta = std::stod(tokens[beta_idx]);
+	    if (sz_idx > 0) {
+		N = std::stod(tokens[sz_idx]); 
+		sz = N;
+	    }
+	    if (opt_llk == 2) {
+		array = std::stoi(tokens[array_idx]);
+	    }
+
+	    // coordination
+	    idx = ref_dict.find(id);
+	    if (pval <= 1e-323) {
+		pval = 1e-323;
+	    }
+	    if (idx != ref_dict.end() && idx->second->include_ref) {
+		if (A1 == idx->second->A1 && A2 == idx->second->A2) {
+		    idx->second->include_ss = true;
+		    idx->second->beta = 1.0*sign(beta)* \
+		    fabs(gsl_cdf_ugaussian_Pinv(pval/2.0))/sqrt(sz);
+		    // Added for evaluating likelihood involving Ns
+		    if (opt_llk == 2) {
+			idx->second->array = array;
+			idx->second->sz = sz;
+		    }
+		    n++;
+		}
+		else if (A1 == idx->second->A2 && A2 == idx->second->A1) {
+		    idx->second->include_ss = true;
+		    idx->second->beta = -1.0*sign(beta)* \
+		    fabs(gsl_cdf_ugaussian_Pinv(pval/2.0))/sqrt(sz);
+		    // Added for evaluating likelihood involving Ns
+		    if (opt_llk == 2) {
+			idx->second->array = array;
+			idx->second->sz = sz;
+		    }
+		    n++;
+		    n_flip++;
+		}
+		else {
+		    n_bad++;
+		}
+	    }
+	}
+	nline++;
+	tokens.clear();
+	ss.clear();
     }
 
     cout << n_flip << " SNPs have flipped alleles between summary statistics and " 
@@ -159,7 +243,7 @@ void parse_ss(const string &ss_path, unordered_map<string, \
 
 void parse_ld_mat(const string &ldmat_path, unordered_map<string, CoordInfo*> &ref_dict, \
 	const vector<pair<size_t, size_t>> &boundary, \
-	const vector<string> &SNP, mcmc_data &dat) {
+	const vector<string> &SNP, mcmc_data &dat, int opt_llk) {
     
     FILE *fp;
     fp = fopen(ldmat_path.c_str(), "rb");
@@ -182,8 +266,10 @@ void parse_ld_mat(const string &ldmat_path, unordered_map<string, CoordInfo*> &r
 		dat.beta_mrg.push_back(idx->second->beta);
 		snp_idx.push_back(j-boundary[i].first);
 		// Added for evaluating llk involving Ns
-		dat.sz.push_back(idx->second->sz);
-		dat.array.push_back(idx->second->array);
+		if (opt_llk == 2) {
+		    dat.sz.push_back(idx->second->sz);
+		    dat.array.push_back(idx->second->array);
+		}
 		right++;
 	    }
 	}
@@ -217,7 +303,7 @@ void parse_ld_mat(const string &ldmat_path, unordered_map<string, CoordInfo*> &r
 
 void coord(const string &ref_path, const string &ss_path, \
 	const string &valid_path, const string &ldmat_path, \
-	mcmc_data &dat, unsigned sz) {
+	mcmc_data &dat, unsigned sz, int opt_llk) {
     unordered_map<string, CoordInfo*> ref_dict;
     vector<pair<size_t, size_t>> boundary;
     vector<string> SNP;
@@ -234,9 +320,9 @@ void coord(const string &ref_path, const string &ss_path, \
 	}
     }
 
-    parse_ss(ss_path, ref_dict, sz);    
+    parse_ss(ss_path, ref_dict, sz, opt_llk);    
     parse_ld_mat(ldmat_path, \
-	    ref_dict, boundary, SNP, dat);
+	    ref_dict, boundary, SNP, dat, opt_llk);
     for (it=ref_dict.begin(); it != ref_dict.end(); it++) {
 	 delete(it->second);
     }    

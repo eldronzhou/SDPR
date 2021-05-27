@@ -32,6 +32,7 @@ void print_use() {
 	<< " -chr (required) chromsome to work on. Currently support 1-22. Recommend to run in parallel." << endl << endl
 	<< " -N (required for -mcmc) GWAS sample size." << endl << endl
 	<< " -M (optional) Max number of variance components. M must be greater than 4. Default is 1000." << endl << endl
+	<< " -opt_llk (optional) Which likelihood to evaluate. 1 for vanilla modified likelihood and 2 for SNPs genotyped on different individuals. Please refer to manuscript or manual for more details. Default is 1." << endl << endl
 	<< " -iter (optional) number of iterations for MCMC. Default is 1000." << endl << endl
 	<< " -burn (optional) number of burn-in for MCMC. Default is 200." << endl << endl 
 	<< " -thin (optional) Thinning for MCMC. Default is 1 (no thin). " << endl << endl
@@ -57,6 +58,7 @@ int main(int argc, char *argv[]) {
     size_t M = 1000;
     int iter = 1000, burn = 200, thin = 5;
     int make_ref = 0, run_mcmc = 0;
+    int opt_llk = 1;
 
     // pass command line arguments
     int i = 1;
@@ -186,6 +188,13 @@ int main(int argc, char *argv[]) {
 	    }
 	    i += 2;
 	}
+	else if (strcmp(argv[i], "-opt_llk") == 0) {
+	    opt_llk = strtol(argv[i+1], &end, 10);
+	    if (opt_llk != 1 && opt_llk != 2) {
+		cout << "opt_llk must be in 1 or 2." << endl;
+	    }
+	    i += 2;
+	}
 	else if (strcmp(argv[i], "-h") == 0) {
 	    print_use();
 	    return 0;
@@ -255,7 +264,7 @@ int main(int argc, char *argv[]) {
 
 	mcmc(ref_snpinfo, ss_path, valid_bim, \
 	ref_ldmat, out_path, N, a, c, M, a0k, b0k, iter, \
-	burn, thin, n_threads);
+	burn, thin, n_threads, opt_llk);
     }
 
     return 0;
