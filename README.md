@@ -1,6 +1,3 @@
-# Known issues:
-
-We found SDPR may encounter convergence issue when the sample size for each SNP differs. We are working on a fix and will update the software soon. -4.16.2021
 
 # SDPR
 
@@ -60,7 +57,7 @@ If you have memory issues regarding the large size of blocks, you can increase t
 
 ### Summary Statistics 
 
-The summary statistics should be in the format of 
+The summary statistics should at least contain following columns with samw name (order of the column is not important).
 
 ```
 SNP	A1	A2	BETA	P
@@ -70,7 +67,17 @@ rs1983865       T       C       3.652   0.00026
 ...
 ```
 
-where SNP is the marker name, A1 is the effect allele, A2 is the alternative allele, BETA is the regression coefficient for quantitative traits or log odds ratio for binary traits, and P is the p value. You may change the column names. 
+where SNP is the marker name, A1 is the effect allele, A2 is the alternative allele, BETA is the regression coefficient for quantitative traits or log odds ratio for binary traits, and P is the p value. 
+
+We recommend to include the column N if the sample size for each SNP is available, for example
+
+```
+SNP	A1	A2	BETA	P N
+rs737657        A       G       -2.044  0.0409 100000
+rs7086391       T       C       -2.257  0.024 100000
+rs1983865       T       C       3.652   0.00026 100000
+...
+```
 
 Please refer to the [manual](http://htmlpreview.github.io/?https://github.com/eldronzhou/SDPR/blob/main/doc/Manual.html) for preprocessing of public GWAS summary statistics.
 
