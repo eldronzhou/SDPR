@@ -1,3 +1,4 @@
+The manual will be updated shortly to include the recent change of SDPR. - May 27, 2021
 
 # SDPR
 
