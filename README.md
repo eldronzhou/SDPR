@@ -7,7 +7,7 @@ SDPR (Summary statistics based Dirichelt Process Regression) is a method to comp
 
 ## Installation
 
-Currently we have only tested SDPR on linux x86 as SDPR explictly uses SSE instruction. We are checking whether SDPR works for other operating systems and architecture. To install SDPR, you need to first download the repo:
+Currently we have only tested SDPR on linux x86 as SDPR explictly uses SSE instruction. To install SDPR, you need to first download the repo:
 
 ```
 git clone https://github.com/eldronzhou/SDPR.git
@@ -15,7 +15,7 @@ git clone https://github.com/eldronzhou/SDPR.git
 
 There are two ways to install SDPR, assuming you are working on linux x86. 
 
-1. If you plan to run SDPR on a linux system with a modern intel processor, you may use the precompiled binary `SDPR`. Please make sure that dynamic libraries `gsl/lib/libgsl.so` and `MKL/lib/libmkl_rt.so` are not changed, otherwise SDPR is unable to load the libraries. Running SDPR on AMD x86 CPU has also been tested. 
+1. If you plan to run SDPR on a linux system with a modern intel processor, you may use the precompiled binary `SDPR`. Please make sure that dynamic libraries `gsl/lib/libgsl.so` and `MKL/lib/libmkl_rt.so` are not changed, otherwise SDPR is unable to load the libraries. If you are not able to run the MKL library, you can use openBLAS instead as described in the section below.
 
 2. If you want to compile SDPR from the source for best performance, you need a C/C++ compiler like g++ (tested under version 4.8.5), GSL (version 2.60) and MKL library (version 2017). For convenience, we redistribute the compiled GSL and MKL building on our Intel Xeon Processors in the repo. To install, type `make`. If this version does not work, please report the error to the issue page. If the issue is related to GSL, you may want to download the source code of GSL and compile it yourself. For details about downloading and installing GSL, please refer to [this page](https://www.gnu.org/software/gsl/) and [this page](https://www.gnu.org/software/gsl/doc/html/usage.html#compiling-and-linking). A tutorial of installing gsl is given on this [page](https://coral.ise.lehigh.edu/jild13/2016/07/11/hello/). If you have other versions of MKL library, please refer to [this manual](https://software.intel.com/content/www/us/en/develop/articles/intel-mkl-link-line-advisor.html) for linking advice. On AMD CPU, we recommend using OpenBLAS, please see [here](https://github.com/eldronzhou/SDPR/issues/3) for instructions.
 
@@ -43,7 +43,7 @@ cd test/
 
 ### Reference LD
 
-If you are working on summary statistics from EUR ancestry, you can download the reference LD directory [here](https://drive.google.com/file/d/1QptXfQAyH5Ydyqzew7lxMz7fmydqw-r3/view?usp=sharing) consisting 1 million HapMap3 SNPs estimated from 503 1000 Genome EUR samples. You can also create the reference LD for your preferred reference panel by running the command below. 
+If you are working on summary statistics from EUR ancestry, you can download the [MHC included] or [MHC removed] (https://drive.google.com/file/d/1QptXfQAyH5Ydyqzew7lxMz7fmydqw-r3/view?usp=sharing) reference LD directory consisting 1 million HapMap3 SNPs estimated from 503 1000 Genome EUR samples. You can also create the reference LD for your preferred reference panel by running the command below. 
 
 ```
 # 1 thread 
@@ -58,7 +58,7 @@ If you have memory issues regarding the large size of blocks, you can increase t
 
 ### Summary Statistics 
 
-The summary statistics should at least contain following columns with samw name (order of the column is not important).
+The summary statistics should at least contain following columns with the same name (order of the column is not important).
 
 ```
 SNP	A1	A2	BETA	P
@@ -93,6 +93,7 @@ When running in parallel using (22*3 = 66 threads), SDPR is able to finish MCMC 
 ```
 
 The output has format:
+
 
 ```
 SNP     A1      beta
