@@ -43,7 +43,7 @@ cd test/
 
 ### Reference LD
 
-If you are working on summary statistics from EUR ancestry, you can download the [MHC included] or [MHC removed] (https://drive.google.com/file/d/1QptXfQAyH5Ydyqzew7lxMz7fmydqw-r3/view?usp=sharing) reference LD directory consisting 1 million HapMap3 SNPs estimated from 503 1000 Genome EUR samples. You can also create the reference LD for your preferred reference panel by running the command below. 
+If you are working on summary statistics from EUR ancestry, you can download the [MHC included]() or [MHC removed](https://drive.google.com/file/d/1QptXfQAyH5Ydyqzew7lxMz7fmydqw-r3/view?usp=sharing) reference LD directory consisting 1 million HapMap3 SNPs estimated from 503 1000 Genome EUR samples. You can also create the reference LD for your preferred reference panel by running the command below. 
 
 ```
 # 1 thread 
