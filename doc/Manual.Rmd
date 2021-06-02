@@ -1,8 +1,12 @@
 ---
 title: "SDPR Manual"
 author: Geyu Zhou
-date: 11/24/2020
-output: html_document
+date: "Created on 11/24/2020. Last updated on 5/31/2021."
+output: 
+    html_document:
+        toc: true
+        theme: united
+        toc_depth: 4
 ---
 
 ```{r setup, include=FALSE}
@@ -10,15 +14,13 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-## Table of contents
-
 ## 1. Introduction
 
 SDPR is software developed to predict the complex traits based on GWAS summary statistics. It fits a Bayesian nonparametric model using Markov Chain Monte Carlo (MCMC) to estimate the effect sizes of each SNP. SDPR is adaptive to different genetic architectures and does not rely on external validation datasets for parameter tuning.
 
 ## 2. Installation
 
-Currently we have only tested SDPR on Linux x86 as SDPR explicitly uses SSE instruction. We are checking whether SDPR works for other operating systems and architecture. To install SDPR, you need to first download the repo:
+Currently we have only tested SDPR on Linux x86 as SDPR explicitly uses SSE instruction. To install SDPR, you need to first download the repo:
 
 ```
 git clone https://github.com/eldronzhou/SDPR.git
@@ -26,12 +28,11 @@ git clone https://github.com/eldronzhou/SDPR.git
 
 There are two ways to install SDPR, assuming you are working on Linux x86. 
 
-1. If you plan to run SDPR on a Linux system with a modern Intel processor, you may use the precompiled binary. Move it to the main directory by typing `mv bin/SDPR ./`. Please make sure that dynamic libraries `gsl/lib/libgsl.so` and `MKL/lib/libmkl_rt.so` are not changed, otherwise SDPR is unable to load the libraries.
+1. If you plan to run SDPR on a linux system with a modern intel processor, you may use the precompiled binary `SDPR`. Please make sure that dynamic libraries `gsl/lib/libgsl.so` and `MKL/lib/libmkl_rt.so` are not changed, otherwise SDPR is unable to load the libraries. If you are not able to run the MKL library, you can use openBLAS instead as described in the section below.
 
+2. If you want to compile SDPR from the source for best performance, you need a C/C++ compiler like g++ (tested under version 4.8.5), GSL (version 2.60) and MKL library (version 2017). For convenience, we redistribute the compiled GSL and MKL building on our Intel Xeon Processors in the repo. To install, type `make`. If this version does not work, please report the error to the issue page. If the issue is related to GSL, you may want to download the source code of GSL and compile it yourself. For details about downloading and installing GSL, please refer to [this page](https://www.gnu.org/software/gsl/) and [this page](https://www.gnu.org/software/gsl/doc/html/usage.html#compiling-and-linking). A tutorial of installing gsl is given on this [page](https://coral.ise.lehigh.edu/jild13/2016/07/11/hello/). If you have other versions of MKL library, please refer to [this manual](https://software.intel.com/content/www/us/en/develop/articles/intel-mkl-link-line-advisor.html) for linking advice. On AMD CPU, we recommend using OpenBLAS, please see [here](https://github.com/eldronzhou/SDPR/issues/3) for instructions.
 
-2. If you want to compile SDPR from the source for best performance, you need a C/C++ compiler like g++ (tested under version 4.8.5), GSL (version 2.60) and MKL library (version 2017). For convenience, we redistribute the compiled GSL and MKL building on our Intel Xeon Processors in the repo. To install, type `make`. If this version does not work, please report the error to the issue page. If the issue is related to GSL, you may want to download the source code of GSL and compile it yourself. For details about downloading and installing GSL, please refer to [this page](https://www.gnu.org/software/gsl/) and [this page](https://www.gnu.org/software/gsl/doc/html/usage.html#compiling-and-linking). If you have other versions of MKL library, please refer to [this manual](https://software.intel.com/content/www/us/en/develop/articles/intel-mkl-link-line-advisor.html) for linking advice.
-
-You can run the test case to see whether SDPR is properly installed.
+You can run the test case to see whether SDPR is properly installed. 
 
 ```
 cd test/
@@ -51,7 +52,7 @@ SDPR requires two main input files: genotype of the reference panel and summary 
 
 SDPR uses an empirical Bayes based shrinkage estimator to create the reference LD matrix. It then divide the LD matrix into approximately independent blocks so that SNPs in two blocks would not have nonignorable correlation ($r^2 < r2$, $r2 = 0.1$ as default). 
 
-If you are working on summary statistics from EUR ancestry, you can download the reference LD directory [here]() consisting 1 million HapMap3 SNPs estimated from 503 1000 Genome EUR samples. You can also create the reference LD for your preferred reference panel by running the command below. 
+If you are working on summary statistics from EUR ancestry, you can download the [MHC included](https://drive.google.com/file/d/1BhZdUNG9GfCaeH3m0Ou7yE2Ljvp39-j7/view?usp=sharing) and [MHC removed](https://drive.google.com/file/d/1o-cqLDHfqouribbzlEjfM0ikedQ9H4jc/view?usp=sharing) reference LD directory consisting 1 million HapMap3 SNPs estimated from 503 1000 Genome EUR samples. If you are working on traits where MHC region is known to play an important role (e.g. autoimmune and infectious diseases), we recommend you to use the MHC version. You can also create the reference LD for your preferred reference panel by running the command below. 
 
 ```
 # 1 thread 
@@ -66,7 +67,7 @@ If you have memory issues regarding the large size of blocks, you can increase t
 
 ### 3.2 Summary Statistics
 
-The summary statistics should be in the format of 
+The summary statistics should at least contain following columns with the same name (order of the column is not important).
 
 ```
 SNP	A1	A2	BETA	P
@@ -76,9 +77,21 @@ rs1983865       T       C       3.652   0.00026
 ...
 ```
 
-where SNP is the marker name, A1 is the effect allele, A2 is the alternative allele, BETA is the regression coefficient for quantitative traits or log odds ratio for binary traits, and P is the p value. You may change the column names. 
+where SNP is the marker name, A1 is the effect allele, A2 is the alternative allele, BETA is the regression coefficient for quantitative traits or log odds ratio for binary traits, and P is the p value. 
+
+We recommend to include the column N if the sample size for each SNP is available, for example
+
+```
+SNP     A1      A2      BETA    P       N
+rs737657        A       G       -2.044  0.0409      252156
+rs7086391       T       C       -2.257  0.024      248425
+rs1983865       T       C       3.652   0.00026    253135
+...
+```
 
 Raw public GWAS summary statistics usually contain SNPs that are not ideal for prediction. Thus, we recommend the following pipeline to process the summary statistics.
+
+#### 3.2.1 Standard quality control
 
 First, clean the summary statistics using `munge_sumstats.py` provided by [LDSC](https://github.com/bulik/ldsc). This will remove strand-ambiguous SNPs (A/T and G/C), INDELs, and SNPs with an effective sample size less than 0.67 times the 90th percentile of sample size.
 
@@ -86,18 +99,22 @@ First, clean the summary statistics using `munge_sumstats.py` provided by [LDSC]
 python munge_sumstats.py --sumstats your_ss --out clean
 ```
 
+#### 3.2.2 Conversion to the input format
+
 Second, convert the cleaned summary statistics to the input format. For example, in R you can do
 
 ```
-b = read.table("clean.sumstats.gz", header=T, stringsAsFactors=F)
+b = readr::read.tsv("clean.sumstats.gz", header=T, stringsAsFactors=F)
 # if you have the list of snps you want to keep, you can run
 # snp = read.table(path_to_snplist, stringsAsFactors=F)
 # b = b[b$SNP %in% snp$V1,]
-stopifnot(any(is.real(b$P)))
+b = b[!is.na(b$Z),]
 b$P = 2*pnorm(-abs(b$Z))
 colnames(b) = c("SNP","A1","A2","BETA","N","P")
-write.table(b[,c(1,2,3,4,6)], file="SDPR.txt", append=F, sep="\t", quote=F, row.names=F, col.names=T)
+write.table(b[,c(1,2,3,4,6,5)], file="SDPR.txt", append=F, sep="\t", quote=F, row.names=F, col.names=T)
 ```
+
+#### 3.2.3 Discrepancy between summary statistics and out of sample reference panel
 
 Third, when using out-of-sample reference LD and public GWAS summary statistics, there are possibilities that model is mis-specified for SNPs (details in the manuscript). We consider two possibilities in SDPR: deflation of summary statistics and discrepancy for SNPs in strong LD. 
 
@@ -110,7 +127,24 @@ ldsc.py --h2 clean.sumstats.gz --ref-ld-chr path_to_ref
 
 If the intercept output by LDSC is way smaller than 1, you may want to use [SumHer](http://dougspeed.com/sumher-server/) to obtain the correction factor and pass the squared root using the flag `-c`. For example, if the intercept is no less than 0.8, then it is safe to use the default value 1. If the intercept is 0.64, and the correction factor of SumHer is 0.5, then you can set the flag `-c ` to 0.7.
 
-If you are using in-sample LD reference, you probably would not encounter the discrepancy for SNPs in strong LD. Unless SDPR reports the error of non-positive definite matrix, you can change the value of flag `-a` to 0. When using out-of-sample LD reference such as 1000 Genome, it is safe to set the flag `-a` to 0.1 (default) to make the model more robust.
+If you are using in-sample LD reference, you probably would not encounter the discrepancy for SNPs in strong LD. Unless SDPR reports the error of non-positive definite matrix, you can change the value of flag `-a` to 0. When using out-of-sample LD reference such as 1000 Genome, it is safe to set the flag `-a` to 0.1 (default) to make the model more robust. 
+
+#### 3.2.4 Different sample sizes per SNP (Optional)
+
+When the sample size of each SNP is different, the correlation of effect sizes in the summary statistics would be less than what is expected from the reference panel. This is usually not a concern since we have already used the modified likelihood function and SNPs with small sample size have been removed by standard quality control. 
+
+However, sometimes SNPs relevant to certain traits may be genotyped on a specialized array in a separate cohort. For example, SNPs of GWAS summary statistics of lipid traits were genotyped on two arrays in two separate cohorts (GWAS chip: $N_1 \approx 95,000$; Metabochip: $N_2 \approx 94,000$). In this case, it is better to use another likelihood function for evaluation (-opt_llk 2). The summary statistics should include another column ARRAY indicating whether SNPs were genotyped on array 1 (coded as 1), array 2 (coded as 2), or both arrays (coded as 0). 
+
+```
+SNP     A1      A2      BETA    P       N       ARRAY
+rs737657        G       A       2.082   0.0373424697223086      94311   1
+rs7086391       C       T       0.081   0.935441952506118       94311   1
+rs10786408      C       T       0.286   0.774878121554244       186924  0
+rs782257        T       C       0.838   0.402030703498653       80386   2
+...
+```
+
+Determining which array SNPs were genotyped on is usually impossible unless information regarding the study design is available. Based on our experience, we only encounter this situation when analyzing lipid traits. Users are welcomed to consult the author on how to set the array column for public summary statistics. An example to process the summary statistics and run SDPR with opt_llk2 can be found [here](https://github.com/eldronzhou/SDPR_paper/tree/main/UKB_real/HDL/summ_stats) and [here](https://github.com/eldronzhou/SDPR_paper/blob/main/UKB_real/HDL/result/SDPR/SDPR.sh).
 
 ## 4. Running SDPR
 
@@ -123,6 +157,10 @@ When running in parallel using (22*3 = 66 threads), SDPR is able to finish MCMC 
 ```
 
 Once having the output, one can use [PLINK](https://www.cog-genomics.org/plink/1.9/score) to derive the PRS. 
+
+```
+plink --bfile test_geno --score res.txt 1 2 3 header --out test
+```
 
 ## 5. Options
 
@@ -146,6 +184,8 @@ Once having the output, one can use [PLINK](https://www.cog-genomics.org/plink/1
 
 -M (optional) Max number of variance components. M must be greater than 4. Default is 1000.
 
+-opt_llk (optional) Which likelihood to evaluate. 1 for equation 6 (slightly shrink the correlation of SNPs) and 2 for equation 5 (SNPs genotyped on different arrays in a separate cohort). Please refer to manuscript or manual (3.2.3-2.3.4) for more details. Default is 1.
+
 -iter (optional) number of iterations for MCMC. Default is 1000.
 
 -burn (optional) number of burn-in for MCMC. Default is 200.
@@ -163,4 +203,5 @@ Once having the output, one can use [PLINK](https://www.cog-genomics.org/plink/1
 -a0k (optional) hyperparameter for inverse gamma distribution. Default is 0.5.
 
 -b0k (optional) hyperparameter for inverse gamma distribution. Default is 0.5.
+
 
