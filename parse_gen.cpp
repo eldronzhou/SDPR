@@ -110,14 +110,14 @@ void parse_ss(const string &ss_path, unordered_map<string, \
 
     string id, A1, A2, line;
     std::stringstream ss;
-    double beta, pval, N;
+    double beta = 0, pval = 0, N = 1, Z = 0;
     int n = 0, array = 0;
     unordered_map<string, CoordInfo*>::iterator idx;
 
     vector<string> tokens;
     size_t SNP_idx, A1_idx, A2_idx;
     int beta_idx = -1, pval_idx = -1, array_idx = -1; 
-    int sz_idx = -1;
+    int sz_idx = -1, Z_idx = -1;
 
     int n_flip = 0, n_bad = 0, nline = 0;
 
@@ -169,6 +169,11 @@ void parse_ss(const string &ss_path, unordered_map<string, \
 		sz_idx = token_idx - tokens.begin();
 	    }
 
+	    token_idx = find(tokens.begin(), tokens.end(), "Z");
+	    if (token_idx != tokens.end()) {
+		Z_idx = token_idx - tokens.begin();
+	    }
+
 	    if (opt_llk == 2) {
 		token_idx = find(tokens.begin(), tokens.end(), "ARRAY");
 		if (token_idx != tokens.end()) {
@@ -183,8 +188,16 @@ void parse_ss(const string &ss_path, unordered_map<string, \
 	    // parse fields
 	    id = tokens[SNP_idx]; 
 	    A1 = tokens[A1_idx]; A2  = tokens[A2_idx];
-	    pval = std::stod(tokens[pval_idx]); 
-	    beta = std::stod(tokens[beta_idx]);
+	    if (Z_idx > 0) {
+		Z = std::stod(tokens[Z_idx]);
+	    }
+	    else {
+		if (pval_idx < 0 || beta_idx < 0) {
+		    throw std::runtime_error("Error: cannot find BETA or P column.");
+		}
+		pval = std::stod(tokens[pval_idx]); 
+		beta = std::stod(tokens[beta_idx]);
+	    }
 	    if (sz_idx > 0) {
 		N = std::stod(tokens[sz_idx]); 
 		sz = N;
@@ -195,14 +208,19 @@ void parse_ss(const string &ss_path, unordered_map<string, \
 
 	    // coordination
 	    idx = ref_dict.find(id);
-	    if (pval <= 1e-323) {
-		pval = 1e-323;
+	    if (pval <= 1e-308) {
+		pval = 1e-308;
 	    }
 	    if (idx != ref_dict.end() && idx->second->include_ref) {
 		if (A1 == idx->second->A1 && A2 == idx->second->A2) {
 		    idx->second->include_ss = true;
-		    idx->second->beta = 1.0*sign(beta)* \
-		    fabs(gsl_cdf_ugaussian_Pinv(pval/2.0))/sqrt(sz);
+		    if (Z_idx > 0) {
+			idx->second->beta = Z/sqrt(sz);
+		    }
+		    else {
+			idx->second->beta = 1.0*sign(beta)* \
+			fabs(gsl_cdf_ugaussian_Pinv(pval/2.0))/sqrt(sz);
+		    }
 		    // Added for evaluating likelihood involving Ns
 		    if (opt_llk == 2) {
 			idx->second->array = array;
@@ -212,8 +230,13 @@ void parse_ss(const string &ss_path, unordered_map<string, \
 		}
 		else if (A1 == idx->second->A2 && A2 == idx->second->A1) {
 		    idx->second->include_ss = true;
-		    idx->second->beta = -1.0*sign(beta)* \
-		    fabs(gsl_cdf_ugaussian_Pinv(pval/2.0))/sqrt(sz);
+		    if (Z_idx > 0) {
+			idx->second->beta = -1.0*Z/sqrt(sz);
+		    }
+		    else {
+			idx->second->beta = -1.0*sign(beta)* \
+			fabs(gsl_cdf_ugaussian_Pinv(pval/2.0))/sqrt(sz);
+		    }
 		    // Added for evaluating likelihood involving Ns
 		    if (opt_llk == 2) {
 			idx->second->array = array;
