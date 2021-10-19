@@ -77,10 +77,10 @@ rs737657        A       G       -2.044
 rs7086391       T       C       -2.257  
 rs1983865       T       C       3.652   
 ...
+```
 
 We recommend to include the column N if the sample size for each SNP is available, for example
 
-```
 SNP     A1      A2      BETA    P       N
 rs737657        A       G       -2.044  0.0409      252156
 rs7086391       T       C       -2.257  0.024      248425
