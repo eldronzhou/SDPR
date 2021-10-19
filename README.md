@@ -69,6 +69,15 @@ rs1983865       T       C       3.652   0.00026
 
 where SNP is the marker name, A1 is the effect allele, A2 is the alternative allele, BETA is the regression coefficient for quantitative traits or log odds ratio for binary traits, and P is the p value. 
 
+The users may also wish to provide Z scores instead of P value and BETA for input. This is recommended if P values for some variants are too small.
+
+```
+SNP	A1	A2	Z
+rs737657        A       G       -2.044  
+rs7086391       T       C       -2.257  
+rs1983865       T       C       3.652   
+...
+
 We recommend to include the column N if the sample size for each SNP is available, for example
 
 ```
