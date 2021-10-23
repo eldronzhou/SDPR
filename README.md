@@ -130,7 +130,7 @@ SDPR is devloped by [Zhao lab](http://zhaocenter.org) at Yale University. The so
 
 ## Citation
 
-Geyu Zhou, Hongyu Zhao. A fast and robust Bayesian nonparametric method for prediction of complex traits using summary statistics. bioRxiv 2020.11.30.405241; doi: https://doi.org/10.1101/2020.11.30.405241.
+Zhou G, Zhao H. A fast and robust Bayesian nonparametric method for prediction of complex traits using summary statistics. PLoS Genet. 2021 Jul 26;17(7):e1009697. doi: 10.1371/journal.pgen.1009697. 
 
 
 
