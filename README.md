@@ -98,7 +98,7 @@ When running in parallel using (22*3 = 66 threads), SDPR is able to finish MCMC 
 ```
 # for chr i using 3 threads
 # recommend to run each chr in parallel
-./SDPR -mcmc -ref_dir ref/ -ss ss.txt -N 10000 -chr i -out res.txt -n_threads 3
+./SDPR -mcmc -ref_dir ref/ -ss ss.txt -N 10000 -chr i -out res_i.txt -n_threads 3
 ```
 
 The output has format:
