@@ -80,8 +80,8 @@ void div_block(const string &pfile, \
     }
     read_bim(bim_path.c_str(), &snpinfo);
 
-    for (size_t i=0; i<23; i++) {
-	cout << "chrom " << i+1 << " " << snpinfo.chr_idx[i]  << endl;
+    for (size_t i=1; i<23; i++) {
+	cout << "chrom " << i << " " << snpinfo.chr_idx[i]  << endl;
     }
 
     size_t left = snpinfo.chr_idx[chrom-1], right = snpinfo.chr_idx[chrom];
