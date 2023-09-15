@@ -190,7 +190,7 @@ plink --bfile test_geno --score res.txt 1 2 3 header --out test
 
 -burn (optional) number of burn-in for MCMC. Default is 200.
 
--thin (optional) Thinning for MCMC. Default is 1 (no thin). 
+-thin (optional) Thinning for MCMC. Default is 5. 
 
 -n_threads (optional) number of threads to use. Default is 1.
 
