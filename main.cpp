@@ -35,7 +35,7 @@ void print_use() {
 	<< " -opt_llk (optional) Which likelihood to evaluate. 1 for vanilla modified likelihood and 2 for SNPs genotyped on different individuals. Please refer to manuscript or manual for more details. Default is 1." << endl << endl
 	<< " -iter (optional) number of iterations for MCMC. Default is 1000." << endl << endl
 	<< " -burn (optional) number of burn-in for MCMC. Default is 200." << endl << endl 
-	<< " -thin (optional) Thinning for MCMC. Default is 1 (no thin). " << endl << endl
+	<< " -thin (optional) Thinning for MCMC. Default is 5. " << endl << endl
 	<< " -n_threads (optional) number of threads to use. Default is 1." << endl << endl
 	<< "-r2 (optional) r2 cut-off for parition of independent blocks. Default is 0.1." << endl
 	<< " -a (optional) factor to shrink the reference LD matrix. Default is 0.1. Please refer to the manual for more information." << endl << endl
