@@ -162,11 +162,11 @@ void read_bim(const string &bim_path, SnpInfo *snpinfo) {
 	    snpinfo->chr_idx[chr]++;
 	}
 	else {
-	    cout << "Only support chr 1-22, but found chr: " << chr << endl;
+	    cout << "Only support chr 1-23, but found chr: " << chr << endl;
 	}
     }
 
-    for (size_t i=1; i<23; i++) {
+    for (size_t i=1; i<24; i++) {
 	if (snpinfo->chr_idx[i] != 0) {
 	    snpinfo->chr_idx[i] += snpinfo->chr_idx[i-1];
 	}

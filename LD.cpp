@@ -75,12 +75,12 @@ void div_block(const string &pfile, \
     string bed_path = pfile + ".bed";
     size_t n_sample = get_nsamples(fam_path.c_str());
     SnpInfo snpinfo;
-    for (size_t i=0; i<23; i++) {
+    for (size_t i=0; i<24; i++) {
 	snpinfo.chr_idx[i] = 0;
     }
     read_bim(bim_path.c_str(), &snpinfo);
 
-    for (size_t i=1; i<23; i++) {
+    for (size_t i=1; i<24; i++) {
 	cout << "chrom " << i << " " << snpinfo.chr_idx[i]  << endl;
     }
 
@@ -179,6 +179,10 @@ void div_block(const string &pfile, \
     string out_ldmat = out_dir + "/chr" + \
 		       std::to_string(chrom) + ".dat";
     FILE *f = fopen(out_ldmat.c_str(), "wb");
+    if (f == NULL) {
+       cout << "Cannot open the file " + out_ldmat + " for writing. Check the directory exist!"  << endl;
+       return;
+    }
     for (size_t i=0; i<n_blk; i++) {
 	gsl_matrix_fwrite(f, ref_ld_mat[i]);
 	gsl_matrix_free(ref_ld_mat[i]);
